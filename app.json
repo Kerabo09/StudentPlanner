@@ -1,0 +1,39 @@
+{
+  "expo": {
+    "name": "StudyTracker",
+    "slug": "study-tracker-app",
+    "version": "1.0.0",
+    "scheme": "studytracker",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.studytracker.app"
+    },
+    "android": {
+      "package": "com.studytracker.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#4F46E5"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#4F46E5"
+        }
+      ]
+    ]
+  }
+}

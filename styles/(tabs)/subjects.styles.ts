@@ -1,0 +1,45 @@
+import { StyleSheet } from 'react-native';
+import { colors } from '../../constants/theme';
+
+export const styles = StyleSheet.create({
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+  headerTitle: { fontSize: 22, fontWeight: '700', color: colors.text },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 10,
+    backgroundColor: colors.primarySoft,
+  },
+  addBtnText: { fontSize: 14, color: colors.primary, fontWeight: '600' },
+  intro: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
+  semesterLabel: { fontSize: 11, color: colors.muted, fontWeight: '500', letterSpacing: 0.5 },
+  introTitle: { fontSize: 26, fontWeight: '700', color: colors.text, marginTop: 4 },
+  introSub: { fontSize: 14, color: colors.muted, marginTop: 4 },
+  card: {
+    marginHorizontal: 20,
+    marginBottom: 12,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 1 },
+    elevation: 1,
+  },
+  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
+  cardCode: { fontSize: 16, fontWeight: '700', color: colors.text },
+  cardName: { fontSize: 13, color: colors.muted, marginTop: 2, marginBottom: 4 },
+  colorDot: { width: 12, height: 12, borderRadius: 6, marginTop: 4 },
+  cardNext: { fontSize: 12, fontWeight: '500', marginTop: 4 },
+});
