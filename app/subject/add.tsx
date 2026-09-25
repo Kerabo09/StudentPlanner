@@ -9,26 +9,39 @@ import { styles } from '../../styles/subject/add.styles';
 /**
  * ADD SUBJECT SCREEN (modal form opened from "+ Add" on the Subjects tab)
  * ----------------------------------------------------------------------
- * A simple form: code and name are required, everything else is optional.
+ * A simple form: only the name is required, everything else is optional.
+ * A short "code" is auto-generated from the name (used elsewhere in the app
+ * for badges/filters) so there's no separate code field to fill in.
  * On save, it calls addSubject() from AppContext, which generates a unique id
  * and adds the new subject to shared state (and it gets auto-saved to disk).
  */
+
+// Turns "Linear Algebra" -> "LA", "Physics" -> "PHYS". Falls back to "GEN" if empty.
+function codeFromName(rawName: string): string {
+  const trimmed = rawName.trim();
+  if (!trimmed) return 'GEN';
+  const words = trimmed.split(/\s+/);
+  if (words.length > 1) {
+    return words.map(w => w[0]).join('').toUpperCase().slice(0, 6);
+  }
+  return trimmed.slice(0, 4).toUpperCase();
+}
+
 export default function AddSubjectScreen() {
   const goBack = useSafeBack();
   const { addSubject } = useApp();
-  const [code, setCode] = useState('');
   const [name, setName] = useState('');
   const [professor, setProfessor] = useState('');
   const [schedule, setSchedule] = useState('');
   const [color, setColor] = useState(SUBJECT_COLORS[0]);
 
-  // The Save button in the header is disabled until both required fields have text.
-  const canSave = code.trim().length > 0 && name.trim().length > 0;
+  // The Save button in the header is disabled until the required field has text.
+  const canSave = name.trim().length > 0;
 
   const handleSave = () => {
     if (!canSave) return;
     addSubject({
-      code: code.trim().toUpperCase(),
+      code: codeFromName(name),
       name: name.trim(),
       professor: professor.trim(),
       schedule: schedule.trim(),
@@ -47,13 +60,6 @@ export default function AddSubjectScreen() {
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Field
-            label="Subject code *"
-            placeholder="e.g. MATH 204"
-            value={code}
-            onChangeText={setCode}
-            autoCapitalize="characters"
-          />
           <Field
             label="Subject name *"
             placeholder="e.g. Linear Algebra"
