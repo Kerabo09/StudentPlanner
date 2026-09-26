@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { colors } from '../constants/theme';
 import { useApp } from '../context/AppContext';
 import type { Assignment } from '../types';
-import { Checkbox, PriorityBadge, ProgressBar } from './ui';
+import { Checkbox, PriorityBadge } from './ui';
 import { styles } from './TaskCard.styles';
 
 /**
@@ -13,8 +13,6 @@ import { styles } from './TaskCard.styles';
  * One assignment shown as a card (used on the Tasks tab, Subject detail, and Search).
  * - Tapping the card navigates to the full assignment detail screen.
  * - Tapping the round checkbox marks the assignment done/not done without leaving this screen.
- * - If the assignment has subtasks, a small "x/y done" progress bar is shown — this is a
- *   per-task checklist, separate from the app-wide progress feature that was removed.
  */
 export default function TaskCard({
   assignment: a,
@@ -29,13 +27,8 @@ export default function TaskCard({
   const { subjects, toggleAssignmentDone } = useApp();
 
   const subject = subjects.find(s => s.id === a.subjectId);
-  const doneCount = a.subtasks.filter(st => st.done).length;
-  const total = a.subtasks.length;
-  const progress = total > 0 ? (doneCount / total) * 100 : 0;
 
-  const meta = [showSubject ? subject?.code || 'No subject' : null, a.studyTime || null]
-    .filter(Boolean)
-    .join(' · ');
+  const meta = showSubject ? subject?.code || 'No subject' : null;
 
   return (
     <Pressable
@@ -50,18 +43,6 @@ export default function TaskCard({
           <PriorityBadge priority={a.priority} />
           {meta ? <Text style={styles.meta}>{meta}</Text> : null}
           {a.dueDate ? <Text style={styles.meta}>Due {a.dueDate}</Text> : null}
-          {total > 0 && (
-            <>
-              <View style={styles.subtaskRow}>
-                <Text style={styles.subtaskLabel}>Subtasks</Text>
-                <Text style={[styles.subtaskCount, { color: accent }]}>
-                  {doneCount}/{total} done
-                </Text>
-              </View>
-              <ProgressBar value={progress} color={accent} />
-            </>
-          )}
-          {a.gradeWeight ? <Text style={styles.small}>{a.gradeWeight} grade weight</Text> : null}
         </View>
       </View>
     </Pressable>
