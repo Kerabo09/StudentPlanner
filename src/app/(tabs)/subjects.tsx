@@ -5,14 +5,14 @@
  * - Data (subjects, assignments) comes from the shared AppContext (see context/AppContext.tsx),
  *   which is our single source of truth and is saved to the device automatically.
  * - Tapping a card opens that subject's detail page (app/subject/[id].tsx).
- * - Tapping "+ Add" opens the add-subject form (app/subject/add.tsx).
+ * - The empty-state "+ Add Subject" button opens the add-subject form (app/subject/add.tsx).
  */
 import React from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { colors, SUBJECT_COLORS } from '@/constants/theme';
 import { useApp } from '@/state/AppContext';
-import { BookEmptyIcon, ChevronRightIcon, PlusIcon } from '@/components/common/Icons';
+import { BookEmptyIcon, ChevronRightIcon } from '@/components/common/Icons';
 import { EmptyState, Screen } from '@/components/common/ui';
 import { sortByDeadline } from '@/utils/dates';
 import { styles } from '@/styles/(tabs)/subjects.styles';
@@ -31,14 +31,6 @@ export default function SubjectsScreen() {
     <Screen>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Subjects</Text>
-        <Pressable
-          style={styles.addBtn}
-          onPress={() => router.push('/subject/add')}
-          accessibilityRole="button"
-        >
-          <PlusIcon />
-          <Text style={styles.addBtnText}>Add</Text>
-        </Pressable>
       </View>
 
       <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
@@ -56,7 +48,7 @@ export default function SubjectsScreen() {
           <EmptyState
             icon={<BookEmptyIcon />}
             title="No subjects yet"
-            body="Tap + Add above to create your first subject."
+            body="Tap the button below to create your first subject."
             actionLabel="+ Add Subject"
             onAction={() => router.push('/subject/add')}
           />
