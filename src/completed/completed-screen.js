@@ -1,13 +1,15 @@
 /**
  * COMPLETED TAB  (route "/completed") — ALL THE CODE IN ONE FILE
  * ---------------------------------------------------------------
- * src/completed/completed.js         - this file (code)
+ * src/completed/completed-screen.js  - this file (code)
  * src/completed/completed.styles.js  - the styles (external CSS)
  *
  * - Shows ONLY tasks that are marked done.
  * - The trash button deletes one task (after a confirmation).
  * - "Delete all" deletes every completed task (after a confirmation).
  * - Unticking a checkbox sends the task back to the Tasks tab.
+ *
+ * Order in this file: 1. CompletedScreen  2. TaskCard  3. EmptyState
  */
 import React from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
@@ -17,48 +19,9 @@ import { Checkbox, confirmDelete, PriorityBadge, sortByDeadline, useApp } from '
 import { CheckEmptyIcon, TrashIcon } from '@/tasks/icon';
 import { styles } from './completed.styles';
 
-function EmptyState({ title, body }) {
-  return (
-    <View style={styles.empty}>
-      <View style={styles.emptyIcon}>
-        <CheckEmptyIcon />
-      </View>
-      <Text style={styles.emptyTitle}>{title}</Text>
-      <Text style={styles.emptyBody}>{body}</Text>
-    </View>
-  );
-}
-
-function TaskCard({ task, onDelete }) {
-  const router = useRouter();
-  const { toggleTaskDone } = useApp();
-  return (
-    <Pressable
-      onPress={() => router.push(`/task/${task.id}`)}
-      accessibilityRole="button"
-      style={({ pressed }) => [styles.card, styles.cardDone, pressed && styles.cardPressed]}
-    >
-      <View style={styles.cardRow}>
-        <Checkbox checked={task.done} onPress={() => toggleTaskDone(task.id)} />
-        <View style={styles.cardContent}>
-          <Text style={[styles.cardTitle, styles.cardTitleDone]}>{task.title}</Text>
-          <PriorityBadge priority={task.priority} />
-          <Text style={styles.cardMeta}>{task.subject || 'No subject'}</Text>
-          {task.dueDate ? <Text style={styles.cardMeta}>Due {task.dueDate}</Text> : null}
-        </View>
-        <Pressable
-          onPress={onDelete}
-          hitSlop={10}
-          style={styles.deleteBtn}
-          accessibilityRole="button"
-          accessibilityLabel={`Delete ${task.title}`}
-        >
-          <TrashIcon />
-        </Pressable>
-      </View>
-    </Pressable>
-  );
-}
+/* ======================================================================
+   1. COMPLETED SCREEN (header, Delete all, list)
+   ====================================================================== */
 
 export function CompletedScreen() {
   const { tasks, deleteTask, clearCompletedTasks } = useApp();
@@ -108,5 +71,56 @@ export function CompletedScreen() {
         ListFooterComponent={<View style={styles.listFooter} />}
       />
     </SafeAreaView>
+  );
+}
+
+/* ======================================================================
+   2. TASK CARD (one completed row)
+   ====================================================================== */
+
+function TaskCard({ task, onDelete }) {
+  const router = useRouter();
+  const { toggleTaskDone } = useApp();
+  return (
+    <Pressable
+      onPress={() => router.push(`/task/${task.id}`)}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.card, styles.cardDone, pressed && styles.cardPressed]}
+    >
+      <View style={styles.cardRow}>
+        <Checkbox checked={task.done} onPress={() => toggleTaskDone(task.id)} />
+        <View style={styles.cardContent}>
+          <Text style={[styles.cardTitle, styles.cardTitleDone]}>{task.title}</Text>
+          <PriorityBadge priority={task.priority} />
+          <Text style={styles.cardMeta}>{task.subject || 'No subject'}</Text>
+          {task.dueDate ? <Text style={styles.cardMeta}>Due {task.dueDate}</Text> : null}
+        </View>
+        <Pressable
+          onPress={onDelete}
+          hitSlop={10}
+          style={styles.deleteBtn}
+          accessibilityRole="button"
+          accessibilityLabel={`Delete ${task.title}`}
+        >
+          <TrashIcon />
+        </Pressable>
+      </View>
+    </Pressable>
+  );
+}
+
+/* ======================================================================
+   3. EMPTY STATE
+   ====================================================================== */
+
+function EmptyState({ title, body }) {
+  return (
+    <View style={styles.empty}>
+      <View style={styles.emptyIcon}>
+        <CheckEmptyIcon />
+      </View>
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptyBody}>{body}</Text>
+    </View>
   );
 }

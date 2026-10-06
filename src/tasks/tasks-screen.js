@@ -3,6 +3,9 @@
  * -----------------------
  * Lists unfinished tasks, with a search box. Nearest deadline first.
  * Opened through app/(tabs)/index.js.
+ *
+ * Order in this file (top of the screen to the bottom):
+ *   1. TasksScreen  2. TaskCard (one row)  3. EmptyState  4. Search + sort helper
  */
 import React, { useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
@@ -12,39 +15,9 @@ import { Checkbox, PriorityBadge, sortByDeadline, useApp } from './tasks';
 import { ClipboardEmptyIcon, SearchIcon } from './icon';
 import { colors, styles } from './tasks.styles';
 
-function EmptyState({ title, body }) {
-  return (
-    <View style={styles.empty}>
-      <View style={styles.emptyIcon}>
-        <ClipboardEmptyIcon />
-      </View>
-      <Text style={styles.emptyTitle}>{title}</Text>
-      <Text style={styles.emptyBody}>{body}</Text>
-    </View>
-  );
-}
-
-function TaskCard({ task }) {
-  const router = useRouter();
-  const { toggleTaskDone } = useApp();
-  return (
-    <Pressable
-      onPress={() => router.push(`/task/${task.id}`)}
-      accessibilityRole="button"
-      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-    >
-      <View style={styles.cardRow}>
-        <Checkbox checked={task.done} onPress={() => toggleTaskDone(task.id)} />
-        <View style={styles.cardContent}>
-          <Text style={styles.cardTitle}>{task.title}</Text>
-          <PriorityBadge priority={task.priority} />
-          <Text style={styles.cardMeta}>{task.subject || 'No subject'}</Text>
-          {task.dueDate ? <Text style={styles.cardMeta}>Due {task.dueDate}</Text> : null}
-        </View>
-      </View>
-    </Pressable>
-  );
-}
+/* ======================================================================
+   1. TASKS SCREEN (header, search box, list)
+   ====================================================================== */
 
 export function TasksScreen() {
   const { tasks } = useApp();
@@ -109,6 +82,52 @@ export function TasksScreen() {
     </SafeAreaView>
   );
 }
+
+/* ======================================================================
+   2. TASK CARD (one row; tap opens task details)
+   ====================================================================== */
+
+function TaskCard({ task }) {
+  const router = useRouter();
+  const { toggleTaskDone } = useApp();
+  return (
+    <Pressable
+      onPress={() => router.push(`/task/${task.id}`)}
+      accessibilityRole="button"
+      style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
+    >
+      <View style={styles.cardRow}>
+        <Checkbox checked={task.done} onPress={() => toggleTaskDone(task.id)} />
+        <View style={styles.cardContent}>
+          <Text style={styles.cardTitle}>{task.title}</Text>
+          <PriorityBadge priority={task.priority} />
+          <Text style={styles.cardMeta}>{task.subject || 'No subject'}</Text>
+          {task.dueDate ? <Text style={styles.cardMeta}>Due {task.dueDate}</Text> : null}
+        </View>
+      </View>
+    </Pressable>
+  );
+}
+
+/* ======================================================================
+   3. EMPTY STATE (no tasks / no search match)
+   ====================================================================== */
+
+function EmptyState({ title, body }) {
+  return (
+    <View style={styles.empty}>
+      <View style={styles.emptyIcon}>
+        <ClipboardEmptyIcon />
+      </View>
+      <Text style={styles.emptyTitle}>{title}</Text>
+      <Text style={styles.emptyBody}>{body}</Text>
+    </View>
+  );
+}
+
+/* ======================================================================
+   4. SEARCH + SORT HELPER
+   ====================================================================== */
 
 /** Open (not done) tasks whose title or subject contains the search text, nearest deadline first. */
 function getVisibleTasks(tasks, search) {

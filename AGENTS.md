@@ -13,21 +13,27 @@ Requires Node 22 (see `.mise.toml`). Use the latest Expo Go from the App Store /
 
 ## Project structure
 
-Imports use the `@/` alias (= `src/`), e.g. `@/tasks/tasks`.
+Imports use the `@/` alias (= `src/`), e.g. `@/tasks/tasks`. Each file holds a whole feature, in the order the UI flows (screen first, small parts after).
 
-- `src/tasks/tasks.js` - shared core: app state (`AppProvider` / `useApp`), `useSafeBack`, `confirmDelete`, `Screen`, `PriorityBadge`, `Checkbox`, deadline sorting (`parseDueDate`, `sortByDeadline`) and the `RootNavigator`.
-- `src/tasks/tasks.styles.js` - every style of the Tasks folder + the app colours (`colors`).
-- `src/tasks/icon.js` - all SVG icons.
-- `src/tasks/search-tab.js` - Tasks tab (`TasksScreen`: list + search).
-- `src/tasks/task-details.js` - Task Details screen.
-- `src/tasks/tabs.js` - bottom tab bar (`TabNavigator`).
-- `src/storage/strorage.js` - AsyncStorage `loadTasks` / `saveTasks` (the only file that touches AsyncStorage).
-- `src/add-task/add-task.js` - Add Task tab. `src/add-task/edit-task.js` - Edit Task modal. Both use `add-task.styles.js`.
-- `src/add-task/calendar.js` - `DeadlineField`: deadline text box + calendar icon + month calendar picker, used by both the Add Task and Edit Task forms (styles: `calendarStyles` in `add-task.styles.js`).
-- `src/completed/completed.js` + `completed.styles.js` - Completed tab.
-- `app/` (project root, **outside** `src`) - Expo Router route files. Each is a one-line re-export of a screen above. Every file in it becomes a route, so it is kept separate from `src`.
+**`src/tasks/`**
+- `tasks.js` - shared core: 1. `RootNavigator`, 2. app state (`AppProvider` / `useApp`), 3. `useSafeBack` + `confirmDelete`, 4. `Screen` / `PriorityBadge` / `Checkbox`, 5. `parseDueDate` / `sortByDeadline`.
+- `tasks-screen.js` - Tasks tab: `TasksScreen`, `TaskCard`, `EmptyState`, `getVisibleTasks`.
+- `task-details.js` - Task Details screen. `tabs.js` - bottom tab bar (`TabNavigator`).
+- `icon.js` - SVG icons. `tasks.styles.js` - every Tasks style + the app colours (`colors`).
+- `storage/storage.js` - AsyncStorage `loadTasks` / `saveTasks` (the only file that touches AsyncStorage).
 
-Import direction (keep it one-way to avoid circular imports): `tasks.styles.js` / `icon.js` / `strorage.js` <- `tasks.js` <- `search-tab.js` / `task-details.js` / `add-task.js` / `edit-task.js` / `completed.js`. Never import those screen files from `tasks.js`.
+**`src/add-task/`**
+- `add-task-screen.js` - Add Task tab: `AddTaskScreen`, `AddTaskForm`, rules (`checkDeadline`, `canSaveTask`).
+- `edit-task-screen.js` - Edit Task modal: `EditTaskScreen`, `TaskForm`, `FormHeader`, `checkEditDeadline`.
+- `deadline-field.js` - `DeadlineField`, `MonthCalendar`, date helper (used by both forms).
+- `add-task.styles.js` - styles for all of the above.
+
+**`src/completed/`**
+- `completed-screen.js` - Completed tab: `CompletedScreen`, `TaskCard`, `EmptyState`. `completed.styles.js` - its styles.
+
+**`app/`** (project root, **outside** `src`) - Expo Router route files. Each is a one-line re-export of a screen above. Every file in it becomes a route, so it is kept separate from `src`.
+
+Import direction (keep it one-way to avoid circular imports): `tasks.styles.js` / `icon.js` / `storage/storage.js` <- `tasks.js` <- `tasks-screen.js` / `task-details.js` / `add-task-screen.js` / `edit-task-screen.js` / `completed-screen.js`. Never import those screen files from `tasks.js`.
 
 All styles live in the `*.styles.js` files; there is no `StyleSheet.create` inside the code files.
 

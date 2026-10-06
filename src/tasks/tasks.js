@@ -1,17 +1,22 @@
 /**
  * TASKS FOLDER — shared core of the app
  * ---------------------------------------
- * src/tasks/tasks.js          - this file: app state, helpers, shared UI, deadline sorting, root navigator
+ * src/tasks/tasks.js          - this file, in the order the app runs:
+ *                                 1. Root navigator (first thing that renders)
+ *                                 2. App state (tasks + add/update/delete)
+ *                                 3. Navigation helpers (back, confirm delete)
+ *                                 4. Shared UI (Screen, PriorityBadge, Checkbox)
+ *                                 5. Deadline sorting
  * src/tasks/tasks.styles.js   - every style + the colours
  * src/tasks/icon.js           - SVG icons
- * src/tasks/search-tab.js     - Tasks tab (list + search)
+ * src/tasks/tasks-screen.js   - Tasks tab (list + search)
  * src/tasks/task-details.js   - Task Details screen
  * src/tasks/tabs.js           - bottom tab bar
- * src/storage/strorage.js     - AsyncStorage load / save
+ * src/storage/storage.js       - AsyncStorage load / save
  *
  * Import direction (one-way, no circular imports):
- *   tasks.styles / icon / strorage  <-  tasks.js  <-  search-tab / task-details / add-task / completed
- * Never import search-tab, task-details, add-task or completed from this file.
+ *   tasks.styles / icon / strorage  <-  tasks.js  <-  tasks-screen / task-details / add-task-screen / completed-screen
+ * Never import tasks-screen, task-details, add-task-screen or completed-screen from this file.
  * Expo Router opens everything through the route files in /app.
  */
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
@@ -19,7 +24,7 @@ import { ActivityIndicator, Alert, Platform, Pressable, Text, View } from 'react
 import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { loadTasks, saveTasks } from '@/storage/strorage';
+import { loadTasks, saveTasks } from '@/storage/storage';
 import { CheckIcon } from './icon';
 import {
   badgeStyles,
@@ -29,6 +34,42 @@ import {
   rootStyles,
   screenStyles,
 } from './tasks.styles';
+
+/* ======================================================================
+   1. APP START — ROOT NAVIGATOR (app/_layout.js opens this first)
+   ====================================================================== */
+
+// Waits for saved data, then shows the (tabs) section or a detail/edit screen.
+function RootStack() {
+  const { ready } = useApp();
+
+  // Wait for stored data so screens never flash their empty state.
+  if (!ready) {
+    return (
+      <View style={rootStyles.loading}>
+        <ActivityIndicator color={colors.primary} />
+      </View>
+    );
+  }
+
+  return (
+    <Stack screenOptions={{ headerShown: false, contentStyle: rootStyles.stackContent }}>
+      <Stack.Screen name="(tabs)" />
+      <Stack.Screen name="task/[taskId]" options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="task/edit/[taskId]" options={{ presentation: 'modal' }} />
+    </Stack>
+  );
+}
+
+/** The very first component that renders: wraps the whole app in AppProvider. */
+export function RootNavigator() {
+  return (
+    <AppProvider>
+      <StatusBar style="dark" />
+      <RootStack />
+    </AppProvider>
+  );
+}
 
 /* ======================================================================
    2. APP STATE (shared by every screen through useApp())
@@ -123,7 +164,7 @@ export function useApp() {
 }
 
 /* ======================================================================
-   3. HELPERS
+   3. NAVIGATION HELPERS (back button, delete confirmation)
    ====================================================================== */
 
 /**
@@ -151,7 +192,7 @@ export function confirmDelete(title, message, confirmLabel, onConfirm) {
 }
 
 /* ======================================================================
-   6. SHARED UI: Screen, PriorityBadge, Checkbox
+   4. SHARED UI: Screen, PriorityBadge, Checkbox
    ====================================================================== */
 
 /** Full-screen container that respects device safe areas. */
@@ -188,7 +229,7 @@ export function Checkbox({ checked, onPress }) {
 }
 
 /* ======================================================================
-   7. DEADLINE SORTING
+   5. DEADLINE SORTING (used by the Tasks and Completed tabs)
    ====================================================================== */
 
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
@@ -265,36 +306,4 @@ export function sortByDeadline(list) {
     return x.index - y.index; // keep insertion order otherwise
   });
   return keyed.map(k => k.a);
-}
-
-/* ROOT NAVIGATOR */
-function RootStack() {
-  const { ready } = useApp();
-
-  // Wait for stored data so screens never flash their empty state.
-  if (!ready) {
-    return (
-      <View style={rootStyles.loading}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
-  }
-
-  return (
-    <Stack screenOptions={{ headerShown: false, contentStyle: rootStyles.stackContent }}>
-      <Stack.Screen name="(tabs)" />
-      <Stack.Screen name="task/[taskId]" options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="task/edit/[taskId]" options={{ presentation: 'modal' }} />
-    </Stack>
-  );
-}
-
-/** The very first component that renders: wraps the whole app in AppProvider. */
-export function RootNavigator() {
-  return (
-    <AppProvider>
-      <StatusBar style="dark" />
-      <RootStack />
-    </AppProvider>
-  );
 }

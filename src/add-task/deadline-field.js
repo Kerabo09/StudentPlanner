@@ -3,8 +3,10 @@
  * --------------------------------------------------
  * <DeadlineField> = the label + a "YYYY-MM-DD" text box + a calendar icon button.
  * Tap the icon to open a month calendar, tap a day and the date is filled in
- * (you can still type the date by hand). Used by add-task.js and edit-task.js.
+ * (you can still type the date by hand). Used by add-task-screen.js and edit-task-screen.js.
  * Styles: add-task.styles.js (calendarStyles, formStyles). Icons: tasks/icon.js.
+ *
+ * Order in this file: 1. DeadlineField (text box + icon)  2. MonthCalendar (opens on tap)  3. date helper
  */
 import React, { useState } from 'react';
 import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
@@ -21,17 +23,66 @@ const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const pad = n => String(n).padStart(2, '0');
 const toText = (year, month, day) => `${year}-${pad(month + 1)}-${pad(day)}`;
 
-/** "2026-10-5" -> { year: 2026, month: 9, day: 5 } (month is 0-11). null when not a real date. */
-function parseDate(text) {
-  const m = (text ?? '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!m) return null;
-  const year = Number(m[1]);
-  const month = Number(m[2]) - 1;
-  const day = Number(m[3]);
-  const d = new Date(year, month, day);
-  const real = d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
-  return real ? { year, month, day } : null;
+/* ======================================================================
+   1. DEADLINE FIELD (what the forms use)
+   ====================================================================== */
+
+/**
+ * Props: label ("Deadline *"), value (the text, "YYYY-MM-DD"), onChange(text),
+ *        error (red message under the field, '' for none).
+ */
+export function DeadlineField({ label = 'Deadline', value, onChange, error = '' }) {
+  const [open, setOpen] = useState(false);
+
+  const toggle = () => {
+    Keyboard.dismiss();
+    setOpen(o => !o);
+  };
+
+  return (
+    <View>
+      <Text style={formStyles.label}>{label}</Text>
+      <View style={calendarStyles.inputRow}>
+        <TextInput
+          style={[formStyles.input, calendarStyles.inputFlex, !!error && formStyles.inputError]}
+          placeholder="YYYY-MM-DD"
+          placeholderTextColor={colors.faint}
+          value={value}
+          onChangeText={onChange}
+          autoCapitalize="none"
+          autoCorrect={false}
+          maxLength={10}
+          keyboardType="numbers-and-punctuation"
+          accessibilityLabel="Deadline"
+        />
+        <Pressable
+          onPress={toggle}
+          style={[calendarStyles.iconBtn, open && calendarStyles.iconBtnActive]}
+          accessibilityRole="button"
+          accessibilityLabel="Open calendar"
+          accessibilityState={{ expanded: open }}
+        >
+          <CalendarIcon color={open ? colors.primary : colors.muted} />
+        </Pressable>
+      </View>
+      {error ? <Text style={formStyles.errorText}>{error}</Text> : null}
+
+      {open ? (
+        <MonthCalendar
+          value={value}
+          onPick={text => {
+            onChange(text);
+            setOpen(false);
+          }}
+        />
+      ) : null}
+    </View>
+  );
 }
+
+/* ======================================================================
+   2. MONTH CALENDAR (opens when the calendar icon is tapped)
+   ====================================================================== */
 
 /** The month grid. Mounted only while open, so it always starts on the selected (or current) month. */
 function MonthCalendar({ value, onPick }) {
@@ -141,55 +192,18 @@ function MonthCalendar({ value, onPick }) {
   );
 }
 
-/**
- * Props: label ("Deadline *"), value (the text, "YYYY-MM-DD"), onChange(text),
- *        error (red message under the field, '' for none).
- */
-export function DeadlineField({ label = 'Deadline', value, onChange, error = '' }) {
-  const [open, setOpen] = useState(false);
+/* ======================================================================
+   3. DATE HELPER
+   ====================================================================== */
 
-  const toggle = () => {
-    Keyboard.dismiss();
-    setOpen(o => !o);
-  };
-
-  return (
-    <View>
-      <Text style={formStyles.label}>{label}</Text>
-      <View style={calendarStyles.inputRow}>
-        <TextInput
-          style={[formStyles.input, calendarStyles.inputFlex, !!error && formStyles.inputError]}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor={colors.faint}
-          value={value}
-          onChangeText={onChange}
-          autoCapitalize="none"
-          autoCorrect={false}
-          maxLength={10}
-          keyboardType="numbers-and-punctuation"
-          accessibilityLabel="Deadline"
-        />
-        <Pressable
-          onPress={toggle}
-          style={[calendarStyles.iconBtn, open && calendarStyles.iconBtnActive]}
-          accessibilityRole="button"
-          accessibilityLabel="Open calendar"
-          accessibilityState={{ expanded: open }}
-        >
-          <CalendarIcon color={open ? colors.primary : colors.muted} />
-        </Pressable>
-      </View>
-      {error ? <Text style={formStyles.errorText}>{error}</Text> : null}
-
-      {open ? (
-        <MonthCalendar
-          value={value}
-          onPick={text => {
-            onChange(text);
-            setOpen(false);
-          }}
-        />
-      ) : null}
-    </View>
-  );
+/** "2026-10-5" -> { year: 2026, month: 9, day: 5 } (month is 0-11). null when not a real date. */
+function parseDate(text) {
+  const m = (text ?? '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return null;
+  const year = Number(m[1]);
+  const month = Number(m[2]) - 1;
+  const day = Number(m[3]);
+  const d = new Date(year, month, day);
+  const real = d.getFullYear() === year && d.getMonth() === month && d.getDate() === day;
+  return real ? { year, month, day } : null;
 }

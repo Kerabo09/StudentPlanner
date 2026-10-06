@@ -2,6 +2,8 @@
  * EDIT TASK  (modal "/task/edit/<id>")
  * -------------------------------------
  * Pre-filled form for changing a task. Opened through app/task/edit/[taskId].js.
+ *
+ * Order in this file: 1. EditTaskScreen  2. TaskForm  3. FormHeader  4. Deadline check
  */
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
@@ -9,77 +11,60 @@ import { useLocalSearchParams } from 'expo-router';
 import { BackIcon } from '@/tasks/icon';
 import { Screen, useApp, useSafeBack } from '@/tasks/tasks';
 import { colors, PRIORITIES } from '@/tasks/tasks.styles';
-import { DeadlineField } from './calendar';
-import { chipStyles, editStyles, formStyles, headerStyles } from './add-task.styles';
+import { DeadlineField } from './deadline-field';
+import { editStyles, formStyles, headerStyles } from './add-task.styles';
 
 const pad = n => String(n).padStart(2, '0');
 
-/** Selectable pill used for filters and pickers. */
-export function Chip({ label, active, onPress, children }) {
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected: !!active }}
-      style={[chipStyles.chip, active && chipStyles.chipActive]}
-    >
-      <Text style={[chipStyles.chipText, active && chipStyles.chipTextActive]}>{label}</Text>
-      {children}
-    </Pressable>
-  );
-}
+/* ======================================================================
+   1. EDIT TASK SCREEN (finds the task, then shows the form)
+   ====================================================================== */
 
-/** Top bar for modal forms: Cancel · Title · Save. */
-function FormHeader({ title, onCancel, onSave, saveDisabled }) {
+export function EditTaskScreen() {
+  const { taskId } = useLocalSearchParams();
+  const goBack = useSafeBack();
+  const { tasks, updateTask } = useApp();
+
+  const task = tasks.find(x => x.id === taskId);
+
+  // The form (and all of its hooks) only mounts once we know the task exists,
+  // so hook order is stable across renders.
+  if (!task) {
+    return (
+      <Screen>
+        <Pressable onPress={goBack} style={editStyles.back} accessibilityRole="button" accessibilityLabel="Back">
+          <BackIcon />
+        </Pressable>
+        <Text style={editStyles.notFound}>Task not found.</Text>
+      </Screen>
+    );
+  }
+
   return (
-    <View style={headerStyles.formHeader}>
-      <Pressable onPress={onCancel} hitSlop={8} accessibilityRole="button">
-        <Text style={headerStyles.cancelText}>Cancel</Text>
-      </Pressable>
-      <Text style={headerStyles.formTitle}>{title}</Text>
-      <Pressable
-        onPress={onSave}
-        disabled={saveDisabled}
-        hitSlop={8}
-        accessibilityRole="button"
-        accessibilityState={{ disabled: !!saveDisabled }}
-      >
-        <Text style={[headerStyles.saveText, saveDisabled && headerStyles.saveTextDisabled]}>Save</Text>
-      </Pressable>
-    </View>
+    <TaskForm
+      heading="Edit Task"
+      initial={task}
+      onCancel={goBack}
+      onSubmit={values => {
+        updateTask(task.id, values);
+        goBack();
+      }}
+    />
   );
 }
 
 /* ======================================================================
-   EDIT TASK — form
+   2. TASK FORM (the fields)
    ====================================================================== */
 
 /**
- * Form used by the Edit Task modal (the Add Task tab has its own copy inside
- * AddTaskScreen.js). Cancel · Title · Save bar at the top.
+ * Form used by the Edit Task modal (the Add Task tab has its own form in add-task-screen.js).
+ * Cancel · Title · Save bar at the top. Subject, Priority, Deadline and Description are optional.
  *
  * Same rules as Add Task: priority buttons are all neutral and only the selected
  * one is highlighted, and the deadline must be a real YYYY-MM-DD date.
  * (Here the deadline may be left empty, but if something is typed it must be valid.)
  */
-
-function checkEditDeadline(text) {
-  const v = text.trim();
-  if (!v) return { ok: true, empty: true, message: '', value: '' };
-
-  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!m) return { ok: false, message: 'Invalid date. Use YYYY-MM-DD, for example 2026-10-05.', value: v };
-
-  const year = Number(m[1]);
-  const month = Number(m[2]);
-  const day = Number(m[3]);
-  const date = new Date(year, month - 1, day);
-  const real = date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
-
-  if (!real) return { ok: false, message: 'That date does not exist. Check the month and day.', value: v };
-  return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
-}
-
 function TaskForm({ heading, initial, onSubmit, onCancel }) {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [subject, setSubject] = useState(initial?.subject ?? '');
@@ -165,7 +150,7 @@ function TaskForm({ heading, initial, onSubmit, onCancel }) {
           />
 
           <View>
-            <Text style={formStyles.label}>Description</Text>
+            <Text style={formStyles.label}>Description (optional)</Text>
             <TextInput
               style={[formStyles.input, formStyles.textArea]}
               placeholder="Add notes or instructions..."
@@ -183,38 +168,47 @@ function TaskForm({ heading, initial, onSubmit, onCancel }) {
 }
 
 /* ======================================================================
-   EDIT TASK — screen
+   3. FORM HEADER (Cancel · Title · Save)
    ====================================================================== */
 
-export function EditTaskScreen() {
-  const { taskId } = useLocalSearchParams();
-  const goBack = useSafeBack();
-  const { tasks, updateTask } = useApp();
-
-  const task = tasks.find(x => x.id === taskId);
-
-  // The form (and all of its hooks) only mounts once we know the task exists,
-  // so hook order is stable across renders.
-  if (!task) {
-    return (
-      <Screen>
-        <Pressable onPress={goBack} style={editStyles.back} accessibilityRole="button" accessibilityLabel="Back">
-          <BackIcon />
-        </Pressable>
-        <Text style={editStyles.notFound}>Task not found.</Text>
-      </Screen>
-    );
-  }
-
+/** Top bar for modal forms: Cancel · Title · Save. */
+function FormHeader({ title, onCancel, onSave, saveDisabled }) {
   return (
-    <TaskForm
-      heading="Edit Task"
-      initial={task}
-      onCancel={goBack}
-      onSubmit={values => {
-        updateTask(task.id, values);
-        goBack();
-      }}
-    />
+    <View style={headerStyles.formHeader}>
+      <Pressable onPress={onCancel} hitSlop={8} accessibilityRole="button">
+        <Text style={headerStyles.cancelText}>Cancel</Text>
+      </Pressable>
+      <Text style={headerStyles.formTitle}>{title}</Text>
+      <Pressable
+        onPress={onSave}
+        disabled={saveDisabled}
+        hitSlop={8}
+        accessibilityRole="button"
+        accessibilityState={{ disabled: !!saveDisabled }}
+      >
+        <Text style={[headerStyles.saveText, saveDisabled && headerStyles.saveTextDisabled]}>Save</Text>
+      </Pressable>
+    </View>
   );
+}
+
+/* ======================================================================
+   4. DEADLINE CHECK
+   ====================================================================== */
+
+function checkEditDeadline(text) {
+  const v = text.trim();
+  if (!v) return { ok: true, empty: true, message: '', value: '' };
+
+  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) return { ok: false, message: 'Invalid date. Use YYYY-MM-DD, for example 2026-10-05.', value: v };
+
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const date = new Date(year, month - 1, day);
+  const real = date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+
+  if (!real) return { ok: false, message: 'That date does not exist. Check the month and day.', value: v };
+  return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
 }

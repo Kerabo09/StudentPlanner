@@ -1,15 +1,14 @@
 /**
  * ADD TASK FOLDER — ALL THE CODE IN ONE FILE
  * -------------------------------------------
- * src/add-task/add-task.js         - this file (code)
+ * src/add-task/add-task-screen.js  - this file (code)
  * src/add-task/add-task.styles.js  - the styles (external CSS)
  *
- * Inside this file:
- *   ADD TASK tab (route "/add-task")  - the form to create a task
- *   EDIT TASK screen (modal "/task/edit/<id>") - the same kind of form, pre-filled
+ * Order in this file: 1. AddTaskScreen  2. AddTaskForm (the fields)  3. Rules (deadline check)
+ * (The Edit Task modal is in edit-task-screen.js.)
  *
  * ADD TASK rules
- * - All fields are required: Title, Subject, Priority, Deadline, Description.
+ * - Required: Title, Subject, Priority, Deadline. Description is optional.
  * - Priority: no button is highlighted until you tap one (High / Medium / Low).
  * - Deadline: must be a real date written as YYYY-MM-DD (e.g. 2026-10-5 or 2026-10-05).
  *   Something like 111234 shows a red error right away and the task cannot be added.
@@ -21,59 +20,32 @@ import { useRouter } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useApp } from '@/tasks/tasks';
 import { colors, PRIORITIES } from '@/tasks/tasks.styles';
-import { DeadlineField } from './calendar';
+import { DeadlineField } from './deadline-field';
 import { styles } from './add-task.styles';
 
 /* ======================================================================
-   ADD TASK TAB — rules
+   1. ADD TASK SCREEN (route "/add-task")
    ====================================================================== */
 
-/* ----------------------------- Deadline check ------------------------------ */
+export function AddTaskScreen() {
+  const router = useRouter();
+  const { addTask } = useApp();
+  const [formKey, setFormKey] = useState(0);
 
-const pad = n => String(n).padStart(2, '0');
-
-/**
- * Checks a deadline typed by the user.
- * Returns { ok, message, value }:
- *   ok      - true when it is a real date in YYYY-MM-DD form
- *   message - what to show under the field when it is not OK
- *   value   - the clean version to save (2026-10-5 -> 2026-10-05)
- */
-function checkDeadline(text) {
-  const v = text.trim();
-  if (!v) return { ok: false, message: '', value: '' };
-
-  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
-  if (!m) {
-    return { ok: false, message: 'Invalid date. Use YYYY-MM-DD, for example 2026-10-05.', value: v };
-  }
-
-  const year = Number(m[1]);
-  const month = Number(m[2]);
-  const day = Number(m[3]);
-  const date = new Date(year, month - 1, day);
-  const real =
-    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
-
-  if (!real) {
-    return { ok: false, message: 'That date does not exist. Check the month and day.', value: v };
-  }
-  return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
-}
-
-/** The task can be added only when every field is filled in and the deadline is a real date. */
-function canSaveTask({ title, subject, priority, notes, deadline }) {
   return (
-    title.trim().length > 0 &&
-    subject.trim().length > 0 &&
-    priority !== '' &&
-    notes.trim().length > 0 &&
-    deadline.ok
+    <AddTaskForm
+      key={formKey}
+      onSubmit={values => {
+        addTask({ ...values, done: false });
+        setFormKey(k => k + 1); // clears the form for next time
+        router.navigate('/');
+      }}
+    />
   );
 }
 
 /* ======================================================================
-   ADD TASK TAB — screen
+   2. ADD TASK FORM (the fields)
    ====================================================================== */
 
 function AddTaskForm({ onSubmit }) {
@@ -86,7 +58,7 @@ function AddTaskForm({ onSubmit }) {
   const deadline = checkDeadline(dueDate);
   const showDeadlineError = dueDate.trim().length > 0 && !deadline.ok;
 
-  const canSave = canSaveTask({ title, subject, priority, notes, deadline });
+  const canSave = canSaveTask({ title, subject, priority, deadline });
 
   const handleSave = () => {
     if (!canSave) return;
@@ -164,7 +136,7 @@ function AddTaskForm({ onSubmit }) {
           />
 
           <View>
-            <Text style={styles.label}>Description *</Text>
+            <Text style={styles.label}>Description (optional)</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Add notes or instructions..."
@@ -176,7 +148,7 @@ function AddTaskForm({ onSubmit }) {
             />
           </View>
 
-          {!canSave && <Text style={styles.hint}>Fill in all fields to add the task.</Text>}
+          {!canSave && <Text style={styles.hint}>Fill in the required fields (*) to add the task.</Text>}
 
           <Pressable
             style={[styles.submitBtn, !canSave && styles.submitBtnDisabled]}
@@ -193,22 +165,49 @@ function AddTaskForm({ onSubmit }) {
   );
 }
 
-export function AddTaskScreen() {
-  const router = useRouter();
-  const { addTask } = useApp();
-  const [formKey, setFormKey] = useState(0);
+/* ======================================================================
+   3. RULES (deadline check, when the button is enabled)
+   ====================================================================== */
 
-  return (
-    <AddTaskForm
-      key={formKey}
-      onSubmit={values => {
-        addTask({ ...values, done: false });
-        setFormKey(k => k + 1); // clears the form for next time
-        router.navigate('/');
-      }}
-    />
-  );
+/* ----------------------------- Deadline check ------------------------------ */
+
+const pad = n => String(n).padStart(2, '0');
+
+/**
+ * Checks a deadline typed by the user.
+ * Returns { ok, message, value }:
+ *   ok      - true when it is a real date in YYYY-MM-DD form
+ *   message - what to show under the field when it is not OK
+ *   value   - the clean version to save (2026-10-5 -> 2026-10-05)
+ */
+function checkDeadline(text) {
+  const v = text.trim();
+  if (!v) return { ok: false, message: '', value: '' };
+
+  const m = v.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if (!m) {
+    return { ok: false, message: 'Invalid date. Use YYYY-MM-DD, for example 2026-10-05.', value: v };
+  }
+
+  const year = Number(m[1]);
+  const month = Number(m[2]);
+  const day = Number(m[3]);
+  const date = new Date(year, month - 1, day);
+  const real =
+    date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
+
+  if (!real) {
+    return { ok: false, message: 'That date does not exist. Check the month and day.', value: v };
+  }
+  return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
 }
 
-
-
+/** The task can be added when Title, Subject, Priority and a real Deadline are filled in. Description is optional. */
+function canSaveTask({ title, subject, priority, deadline }) {
+  return (
+    title.trim().length > 0 &&
+    subject.trim().length > 0 &&
+    priority !== '' &&
+    deadline.ok
+  );
+}
