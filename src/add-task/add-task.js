@@ -1,18 +1,17 @@
 /**
- * ADD TASK TAB
+ * ADD TASK FOLDER — ALL THE CODE IN ONE FILE
  * -------------------------------------------
- * src/add-task/add-task.js         - this file (Add Task tab)
- * src/add-task/edit-task.js         - Edit Task modal
+ * src/add-task/add-task.js         - this file (code)
  * src/add-task/add-task.styles.js  - the styles (external CSS)
  *
  * Inside this file:
  *   ADD TASK tab (route "/add-task")  - the form to create a task
- * (The Edit Task modal lives in src/add-task/edit-task.js, the deadline calendar in src/add-task/calendar.js.)
+ *   EDIT TASK screen (modal "/task/edit/<id>") - the same kind of form, pre-filled
  *
  * ADD TASK rules
- * - Required: Title, Subject, Priority, Deadline. Description is optional.
+ * - All fields are required: Title, Subject, Priority, Deadline, Description.
  * - Priority: no button is highlighted until you tap one (High / Medium / Low).
- * - Deadline: pick a day with the calendar icon, or type a real date written as YYYY-MM-DD (e.g. 2026-10-5 or 2026-10-05).
+ * - Deadline: must be a real date written as YYYY-MM-DD (e.g. 2026-10-5 or 2026-10-05).
  *   Something like 111234 shows a red error right away and the task cannot be added.
  * - After adding, the form is cleared (by changing its `key`) and you go back to the Tasks tab.
  */
@@ -62,12 +61,13 @@ function checkDeadline(text) {
   return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
 }
 
-/** The task can be added when Title, Subject, Priority and Deadline are valid. Description is optional. */
-function canSaveTask({ title, subject, priority, deadline }) {
+/** The task can be added only when every field is filled in and the deadline is a real date. */
+function canSaveTask({ title, subject, priority, notes, deadline }) {
   return (
     title.trim().length > 0 &&
     subject.trim().length > 0 &&
     priority !== '' &&
+    notes.trim().length > 0 &&
     deadline.ok
   );
 }
@@ -86,7 +86,7 @@ function AddTaskForm({ onSubmit }) {
   const deadline = checkDeadline(dueDate);
   const showDeadlineError = dueDate.trim().length > 0 && !deadline.ok;
 
-  const canSave = canSaveTask({ title, subject, priority, deadline });
+  const canSave = canSaveTask({ title, subject, priority, notes, deadline });
 
   const handleSave = () => {
     if (!canSave) return;
@@ -164,7 +164,7 @@ function AddTaskForm({ onSubmit }) {
           />
 
           <View>
-            <Text style={styles.label}>Description (optional)</Text>
+            <Text style={styles.label}>Description *</Text>
             <TextInput
               style={[styles.input, styles.textArea]}
               placeholder="Add notes or instructions..."
@@ -176,7 +176,7 @@ function AddTaskForm({ onSubmit }) {
             />
           </View>
 
-          {!canSave && <Text style={styles.hint}>Fill in the required fields (*) to add the task.</Text>}
+          {!canSave && <Text style={styles.hint}>Fill in all fields to add the task.</Text>}
 
           <Pressable
             style={[styles.submitBtn, !canSave && styles.submitBtnDisabled]}
@@ -209,3 +209,6 @@ export function AddTaskScreen() {
     />
   );
 }
+
+
+

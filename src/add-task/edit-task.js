@@ -1,24 +1,18 @@
 /**
- * EDIT TASK MODAL (route "/task/edit/<id>")
- * ------------------------------------------
- * The same kind of form as the Add Task tab, pre-filled with the task.
- * Opened from the Task Details screen. Styles: add-task.styles.js
- * (chipStyles, headerStyles, formStyles, editStyles).
+ * EDIT TASK  (modal "/task/edit/<id>")
+ * -------------------------------------
+ * Pre-filled form for changing a task. Opened through app/task/edit/[taskId].js.
  */
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
-import { Screen, useApp, useSafeBack } from '@/tasks/tasks';
 import { BackIcon } from '@/tasks/icon';
+import { Screen, useApp, useSafeBack } from '@/tasks/tasks';
 import { colors, PRIORITIES } from '@/tasks/tasks.styles';
 import { DeadlineField } from './calendar';
 import { chipStyles, editStyles, formStyles, headerStyles } from './add-task.styles';
 
 const pad = n => String(n).padStart(2, '0');
-
-/* ======================================================================
-   EDIT TASK — shared pieces: Chip, FormHeader
-   ====================================================================== */
 
 /** Selectable pill used for filters and pickers. */
 export function Chip({ label, active, onPress, children }) {

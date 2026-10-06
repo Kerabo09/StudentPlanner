@@ -1,10 +1,8 @@
-/**
- * STORAGE — the only file that touches AsyncStorage (the phone's saved data)
- * ---------------------------------------------------------------------------
- * src/tasks/tasks.js (AppProvider) calls loadTasks() once on start and
- * saveTasks() whenever the tasks change.
- */
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
+/* ======================================================================
+   1. SAVED DATA (AsyncStorage)
+   ====================================================================== */
 
 const STORAGE_KEY = 'study_tracker_data';
 
