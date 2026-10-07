@@ -1,24 +1,3 @@
-/**
- * TASKS FOLDER — shared core of the app
- * ---------------------------------------
- * src/tasks/tasks.js          - this file, in the order the app runs:
- *                                 1. Root navigator (first thing that renders)
- *                                 2. App state (tasks + add/update/delete)
- *                                 3. Navigation helpers (back, confirm delete)
- *                                 4. Shared UI (Screen, PriorityBadge, Checkbox)
- *                                 5. Deadline sorting
- * src/tasks/tasks.styles.js   - every style + the colours
- * src/tasks/icon.js           - SVG icons
- * src/tasks/tasks-screen.js   - Tasks tab (list + search)
- * src/tasks/task-details.js   - Task Details screen
- * src/tasks/tabs.js           - bottom tab bar
- * src/storage/storage.js       - AsyncStorage load / save
- *
- * Import direction (one-way, no circular imports):
- *   tasks.styles / icon / strorage  <-  tasks.js  <-  tasks-screen / task-details / add-task-screen / completed-screen
- * Never import tasks-screen, task-details, add-task-screen or completed-screen from this file.
- * Expo Router opens everything through the route files in /app.
- */
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Platform, Pressable, Text, View } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
@@ -35,15 +14,9 @@ import {
   screenStyles,
 } from './tasks.styles';
 
-/* ======================================================================
-   1. APP START — ROOT NAVIGATOR (app/_layout.js opens this first)
-   ====================================================================== */
-
-// Waits for saved data, then shows the (tabs) section or a detail/edit screen.
 function RootStack() {
   const { ready } = useApp();
 
-  // Wait for stored data so screens never flash their empty state.
   if (!ready) {
     return (
       <View style={rootStyles.loading}>
@@ -61,7 +34,6 @@ function RootStack() {
   );
 }
 
-/** The very first component that renders: wraps the whole app in AppProvider. */
 export function RootNavigator() {
   return (
     <AppProvider>
@@ -71,32 +43,14 @@ export function RootNavigator() {
   );
 }
 
-/* ======================================================================
-   2. APP STATE (shared by every screen through useApp())
-   ====================================================================== */
-
-/**
- * The shape of our data:
- *
- *  Task = { id, title, subject, priority, dueDate, notes, done }
- *         - subject is plain text typed by the student (e.g. "Mobile Programming")
- *         - priority is 'High', 'Medium' or 'Low'
- *         - dueDate is free text like "2026-10-15" or "Thursday, Dec 5"
- *
- * What useApp() gives each screen:
- *   tasks, ready,
- *   addTask, updateTask, deleteTask, toggleTaskDone, clearCompletedTasks
- */
 const AppContext = createContext(null);
 
-// Makes a unique id for each new task.
 const createId = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
 
 export function AppProvider({ children }) {
   const [tasks, setTasks] = useState([]);
   const [ready, setReady] = useState(false);
 
-  // 1. LOAD once when the app starts.
   useEffect(() => {
     async function loadData() {
       try {
@@ -109,14 +63,10 @@ export function AppProvider({ children }) {
     loadData();
   }, []);
 
-  // 2. SAVE every time the data changes (but only after loading, so we never overwrite saved data with an empty list).
   useEffect(() => {
     if (!ready) return;
     saveTasks(tasks).catch(error => console.warn('Could not save data', error));
   }, [ready, tasks]);
-
-  // 3. ACTIONS. React needs a NEW array each time (never edit the old one),
-  //    so we use [...old, new] to add, .map() to update and .filter() to delete.
 
   function addTask(task) {
     setTasks(prev => [...prev, { ...task, id: createId() }]);
@@ -134,7 +84,6 @@ export function AppProvider({ children }) {
     setTasks(prev => prev.map(t => (t.id === id ? { ...t, done: !t.done } : t)));
   }
 
-  // Used by the Completed tab's "Delete all" button.
   function clearCompletedTasks() {
     setTasks(prev => prev.filter(t => !t.done));
   }
@@ -156,21 +105,12 @@ export function AppProvider({ children }) {
   );
 }
 
-// The hook every screen uses:  const { tasks, addTask } = useApp();
 export function useApp() {
   const context = useContext(AppContext);
   if (!context) throw new Error('useApp must be used inside AppProvider');
   return context;
 }
 
-/* ======================================================================
-   3. NAVIGATION HELPERS (back button, delete confirmation)
-   ====================================================================== */
-
-/**
- * Go back if there is history, otherwise land on the home tab.
- * (A plain `router.back()` does nothing after a web refresh or a deep link into a modal.)
- */
 export function useSafeBack() {
   const router = useRouter();
   return useCallback(() => {
@@ -179,7 +119,6 @@ export function useSafeBack() {
   }, [router]);
 }
 
-// Alert.alert does nothing on web, so use window.confirm there.
 export function confirmDelete(title, message, confirmLabel, onConfirm) {
   if (Platform.OS === 'web') {
     if (typeof window !== 'undefined' && window.confirm(`${title}\n\n${message}`)) onConfirm();
@@ -191,11 +130,6 @@ export function confirmDelete(title, message, confirmLabel, onConfirm) {
   ]);
 }
 
-/* ======================================================================
-   4. SHARED UI: Screen, PriorityBadge, Checkbox
-   ====================================================================== */
-
-/** Full-screen container that respects device safe areas. */
 export function Screen({ children, edges = ['top'], style }) {
   return (
     <SafeAreaView edges={edges} style={[screenStyles.screen, style]}>
@@ -204,7 +138,6 @@ export function Screen({ children, edges = ['top'], style }) {
   );
 }
 
-/** Small colored pill showing a task's priority (e.g. "High"). */
 export function PriorityBadge({ priority, label }) {
   const c = PRIORITY_STYLES[priority] ?? PRIORITY_STYLES.Medium;
   return (
@@ -220,7 +153,7 @@ export function Checkbox({ checked, onPress }) {
       onPress={onPress}
       hitSlop={8}
       accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
+      accessibilityState={{ checked: !!checked }}
       style={[checkboxStyles.checkbox, checked && checkboxStyles.checkboxChecked]}
     >
       {checked ? <CheckIcon size={12} /> : null}
@@ -228,29 +161,18 @@ export function Checkbox({ checked, onPress }) {
   );
 }
 
-/* ======================================================================
-   5. DEADLINE SORTING (used by the Tasks and Completed tabs)
-   ====================================================================== */
-
 const MONTHS = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
 const MONTH_RE = '(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\\.?';
 
-/** Roll a month/day with no explicit year into the nearest sensible year. */
 function withImpliedYear(month, day, now) {
   const candidate = new Date(now.getFullYear(), month, day);
   const sixMonthsMs = 1000 * 60 * 60 * 24 * 183;
-  // "Jan 10" typed in December means next January, not eleven months ago.
   if (now.getTime() - candidate.getTime() > sixMonthsMs) {
     candidate.setFullYear(candidate.getFullYear() + 1);
   }
   return candidate;
 }
 
-/**
- * Best-effort parse of due dates: "2026-12-05" (what the forms produce) plus older
- * free text such as "Thursday, Dec 5", "5 Dec", "12/5" or "12/5/2026".
- * Returns null when nothing recognisable is found.
- */
 export function parseDueDate(text, now = new Date()) {
   const s = (text ?? '').trim().toLowerCase();
   if (!s) return null;
@@ -287,10 +209,6 @@ export function parseDueDate(text, now = new Date()) {
   return null;
 }
 
-/**
- * Sort by nearest deadline. Open tasks come before completed ones,
- * tasks with a recognisable date come before those without.
- */
 export function sortByDeadline(list) {
   const now = new Date();
   const keyed = list.map((a, index) => ({
@@ -303,7 +221,7 @@ export function sortByDeadline(list) {
     if (x.t !== null && y.t !== null && x.t !== y.t) return x.t - y.t;
     if (x.t !== null && y.t === null) return -1;
     if (x.t === null && y.t !== null) return 1;
-    return x.index - y.index; // keep insertion order otherwise
+    return x.index - y.index;
   });
   return keyed.map(k => k.a);
 }

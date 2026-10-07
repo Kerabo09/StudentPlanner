@@ -1,10 +1,3 @@
-/**
- * EDIT TASK  (modal "/task/edit/<id>")
- * -------------------------------------
- * Pre-filled form for changing a task. Opened through app/task/edit/[taskId].js.
- *
- * Order in this file: 1. EditTaskScreen  2. TaskForm  3. FormHeader  4. Deadline check
- */
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
@@ -16,10 +9,6 @@ import { editStyles, formStyles, headerStyles } from './add-task.styles';
 
 const pad = n => String(n).padStart(2, '0');
 
-/* ======================================================================
-   1. EDIT TASK SCREEN (finds the task, then shows the form)
-   ====================================================================== */
-
 export function EditTaskScreen() {
   const { taskId } = useLocalSearchParams();
   const goBack = useSafeBack();
@@ -27,8 +16,6 @@ export function EditTaskScreen() {
 
   const task = tasks.find(x => x.id === taskId);
 
-  // The form (and all of its hooks) only mounts once we know the task exists,
-  // so hook order is stable across renders.
   if (!task) {
     return (
       <Screen>
@@ -53,18 +40,6 @@ export function EditTaskScreen() {
   );
 }
 
-/* ======================================================================
-   2. TASK FORM (the fields)
-   ====================================================================== */
-
-/**
- * Form used by the Edit Task modal (the Add Task tab has its own form in add-task-screen.js).
- * Cancel · Title · Save bar at the top. Subject, Priority, Deadline and Description are optional.
- *
- * Same rules as Add Task: priority buttons are all neutral and only the selected
- * one is highlighted, and the deadline must be a real YYYY-MM-DD date.
- * (Here the deadline may be left empty, but if something is typed it must be valid.)
- */
 function TaskForm({ heading, initial, onSubmit, onCancel }) {
   const [title, setTitle] = useState(initial?.title ?? '');
   const [subject, setSubject] = useState(initial?.subject ?? '');
@@ -132,7 +107,7 @@ function TaskForm({ heading, initial, onSubmit, onCancel }) {
                     key={p}
                     onPress={() => setPriority(p)}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
+                    accessibilityState={{ selected: !!active }}
                     style={[formStyles.priorityBtn, active && formStyles.priorityBtnActive]}
                   >
                     <Text style={[formStyles.priorityText, active && formStyles.priorityTextActive]}>{p}</Text>
@@ -167,11 +142,6 @@ function TaskForm({ heading, initial, onSubmit, onCancel }) {
   );
 }
 
-/* ======================================================================
-   3. FORM HEADER (Cancel · Title · Save)
-   ====================================================================== */
-
-/** Top bar for modal forms: Cancel · Title · Save. */
 function FormHeader({ title, onCancel, onSave, saveDisabled }) {
   return (
     <View style={headerStyles.formHeader}>
@@ -191,10 +161,6 @@ function FormHeader({ title, onCancel, onSave, saveDisabled }) {
     </View>
   );
 }
-
-/* ======================================================================
-   4. DEADLINE CHECK
-   ====================================================================== */
 
 function checkEditDeadline(text) {
   const v = text.trim();

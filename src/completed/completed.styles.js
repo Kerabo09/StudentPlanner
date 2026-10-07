@@ -1,14 +1,5 @@
-/**
- * COMPLETED TAB — STYLES (external CSS)
- */
 import { StyleSheet } from 'react-native';
 import { colors } from '@/tasks/tasks.styles';
-
-/**
- * COMPLETED TAB — STYLES (file 3 of 3)
- * -------------------------------------
- * All the look of the Completed tab. Colours come from tasks/theme.js.
- */
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
@@ -48,8 +39,6 @@ export const styles = StyleSheet.create({
   cardTitleDone: { textDecorationLine: 'line-through', color: colors.faint },
   cardMeta: { fontSize: 13, color: colors.muted },
   deleteBtn: { padding: 4, alignSelf: 'flex-start' },
-
-
 
   empty: { marginHorizontal: 20, backgroundColor: colors.card, borderRadius: 16, padding: 32, alignItems: 'center' },
   emptyIcon: {

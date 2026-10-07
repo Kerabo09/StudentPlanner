@@ -1,12 +1,3 @@
-/**
- * TASKS TAB  (route "/")
- * -----------------------
- * Lists unfinished tasks, with a search box. Nearest deadline first.
- * Opened through app/(tabs)/index.js.
- *
- * Order in this file (top of the screen to the bottom):
- *   1. TasksScreen  2. TaskCard (one row)  3. EmptyState  4. Search + sort helper
- */
 import React, { useState } from 'react';
 import { FlatList, Pressable, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -14,10 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox, PriorityBadge, sortByDeadline, useApp } from './tasks';
 import { ClipboardEmptyIcon, SearchIcon } from './icon';
 import { colors, styles } from './tasks.styles';
-
-/* ======================================================================
-   1. TASKS SCREEN (header, search box, list)
-   ====================================================================== */
 
 export function TasksScreen() {
   const { tasks } = useApp();
@@ -83,10 +70,6 @@ export function TasksScreen() {
   );
 }
 
-/* ======================================================================
-   2. TASK CARD (one row; tap opens task details)
-   ====================================================================== */
-
 function TaskCard({ task }) {
   const router = useRouter();
   const { toggleTaskDone } = useApp();
@@ -109,10 +92,6 @@ function TaskCard({ task }) {
   );
 }
 
-/* ======================================================================
-   3. EMPTY STATE (no tasks / no search match)
-   ====================================================================== */
-
 function EmptyState({ title, body }) {
   return (
     <View style={styles.empty}>
@@ -125,11 +104,6 @@ function EmptyState({ title, body }) {
   );
 }
 
-/* ======================================================================
-   4. SEARCH + SORT HELPER
-   ====================================================================== */
-
-/** Open (not done) tasks whose title or subject contains the search text, nearest deadline first. */
 function getVisibleTasks(tasks, search) {
   const text = search.trim().toLowerCase();
   const open = tasks.filter(t => !t.done);

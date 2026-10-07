@@ -1,9 +1,3 @@
-/**
- * BOTTOM TAB BAR
- * ---------------
- * Defines the three tabs: Tasks, Add Task, Completed.
- * Opened through app/(tabs)/_layout.js.
- */
 import React from 'react';
 import { Tabs } from 'expo-router/js-tabs';
 import { AddTaskIcon, CompletedIcon, TasksIcon } from './icon';

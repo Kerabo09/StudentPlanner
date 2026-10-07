@@ -1,12 +1,5 @@
-/**
- * TASKS FOLDER — ALL THE STYLES (external CSS)
- * ---------------------------------------------
- * The colours of the whole app live here, then the styles for every
- * screen/component in tasks.js. The other two folders import `colors` from here.
- */
 import { StyleSheet } from 'react-native';
 
-/** The app's color palette. Used by every screen's StyleSheet. */
 export const colors = {
   primary: '#4F46E5',
   primarySoft: '#EEF2FF',
@@ -25,22 +18,13 @@ export const colors = {
   white: '#FFFFFF',
 };
 
-/** Background + text color for each priority badge (High/Medium/Low). */
 export const PRIORITY_STYLES = {
   High: { bg: '#FDF2F8', text: '#DB2777' },
   Medium: { bg: '#FFF7ED', text: '#D97706' },
   Low: { bg: '#F0FDF4', text: '#16A34A' },
 };
 
-/** All valid priority values, in display order — used to render the priority picker. */
 export const PRIORITIES = ['High', 'Medium', 'Low'];
-
-/* Tasks tab */
-/**
- * TASKS TAB — STYLES (file 3 of 3)
- * ---------------------------------
- * All the look of the Tasks tab. Colours come from theme.js.
- */
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
@@ -94,8 +78,6 @@ export const styles = StyleSheet.create({
   cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text },
   cardMeta: { fontSize: 13, color: colors.muted },
 
-
-
   empty: { marginHorizontal: 20, backgroundColor: colors.card, borderRadius: 16, padding: 32, alignItems: 'center' },
   emptyIcon: {
     width: 64,
@@ -110,7 +92,6 @@ export const styles = StyleSheet.create({
   emptyBody: { fontSize: 14, color: colors.muted, textAlign: 'center', lineHeight: 20 },
 });
 
-/* Checkbox (shared by Tasks and Completed) */
 export const checkboxStyles = StyleSheet.create({
   checkbox: {
     width: 22,
@@ -125,18 +106,15 @@ export const checkboxStyles = StyleSheet.create({
   checkboxChecked: { backgroundColor: colors.primary, borderColor: colors.primary },
 });
 
-/* Screen */
 export const screenStyles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
 });
 
-/* Priority badge */
 export const badgeStyles = StyleSheet.create({
   badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 3, borderRadius: 6 },
   badgeText: { fontSize: 12, fontWeight: '600' },
 });
 
-/* Task details */
 export const detailsStyles = StyleSheet.create({
   scroll: { flex: 1 },
   bottomSpacer: { height: 32 },
@@ -177,15 +155,11 @@ export const detailsStyles = StyleSheet.create({
   deleteBtnText: { color: colors.danger, fontSize: 14, fontWeight: '500' },
 });
 
-/* Root navigator */
 export const rootStyles = StyleSheet.create({
-  // Shown while the saved tasks are being loaded.
   loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.bg },
-  // Background behind every stack screen.
   stackContent: { backgroundColor: colors.bg },
 });
 
-/* Tab navigator */
 export const tabStyles = StyleSheet.create({
   tabBar: {
     backgroundColor: colors.card,

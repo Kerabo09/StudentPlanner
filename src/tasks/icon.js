@@ -1,10 +1,6 @@
 import React from 'react';
 import Svg, { Circle, Path, Rect } from 'react-native-svg';
 
-/* ======================================================================
-   4. ICONS
-   ====================================================================== */
-
 const base = { fill: 'none', viewBox: '0 0 24 24' };
 const round = { strokeLinecap: 'round', strokeLinejoin: 'round' };
 
@@ -82,7 +78,6 @@ export function MoreIcon({ size = 20, color = '#111827' }) {
   );
 }
 
-/** Large empty-state clipboard (Tasks). */
 export function ClipboardEmptyIcon({ size = 36, color = '#C4B5FD' }) {
   return (
     <Svg width={size} height={size} {...base}>
@@ -119,7 +114,6 @@ export function TrashIcon({ size = 18, color = '#EF4444', strokeWidth = 2 }) {
   );
 }
 
-/** Large empty-state check circle (Completed). */
 export function CheckEmptyIcon({ size = 36, color = '#C4B5FD' }) {
   return (
     <Svg width={size} height={size} {...base}>

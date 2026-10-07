@@ -1,17 +1,5 @@
-/**
- * ADD TASK FOLDER — ALL THE STYLES (external CSS)
- * ------------------------------------------------
- * Add Task tab, Edit Task screen, the form, the form header and the chip.
- */
 import { StyleSheet } from 'react-native';
 import { colors } from '@/tasks/tasks.styles';
-
-/* Add Task tab */
-/**
- * ADD TASK TAB — STYLES (file 3 of 3)
- * ------------------------------------
- * All the look of the Add Task tab. Colours come from tasks/theme.js.
- */
 
 export const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bg },
@@ -44,7 +32,6 @@ export const styles = StyleSheet.create({
   errorText: { fontSize: 12, color: colors.danger, marginTop: 6 },
   textArea: { minHeight: 88, textAlignVertical: 'top' },
 
-  // Priority buttons: all look the same, only the selected one is highlighted.
   priorityRow: { flexDirection: 'row', gap: 10 },
   priorityBtn: {
     flex: 1,
@@ -72,7 +59,6 @@ export const styles = StyleSheet.create({
   submitText: { color: colors.white, fontSize: 15, fontWeight: '600' },
 });
 
-/* Chip */
 export const chipStyles = StyleSheet.create({
   chip: {
     flexDirection: 'row',
@@ -90,7 +76,6 @@ export const chipStyles = StyleSheet.create({
   chipTextActive: { color: colors.white },
 });
 
-/* Form header (Cancel · Title · Save) */
 export const headerStyles = StyleSheet.create({
   formHeader: {
     flexDirection: 'row',
@@ -108,7 +93,6 @@ export const headerStyles = StyleSheet.create({
   saveTextDisabled: { opacity: 0.4 },
 });
 
-/* Edit form */
 export const formStyles = StyleSheet.create({
   flex: { flex: 1 },
   content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 40, gap: 14 },
@@ -151,14 +135,12 @@ export const formStyles = StyleSheet.create({
   priorityTextActive: { color: colors.white },
 });
 
-/* Edit Task screen */
 export const editStyles = StyleSheet.create({
   back: { padding: 4, alignSelf: 'flex-start', marginLeft: 16, marginTop: 12 },
   notFound: { padding: 20, color: colors.muted },
 });
 
-/* Calendar (deadline picker) */
-const DAY_WIDTH = '14.2857%'; // 100% / 7 days
+const DAY_WIDTH = '14.2857%';
 
 export const calendarStyles = StyleSheet.create({
   inputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

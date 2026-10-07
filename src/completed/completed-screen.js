@@ -1,16 +1,3 @@
-/**
- * COMPLETED TAB  (route "/completed") — ALL THE CODE IN ONE FILE
- * ---------------------------------------------------------------
- * src/completed/completed-screen.js  - this file (code)
- * src/completed/completed.styles.js  - the styles (external CSS)
- *
- * - Shows ONLY tasks that are marked done.
- * - The trash button deletes one task (after a confirmation).
- * - "Delete all" deletes every completed task (after a confirmation).
- * - Unticking a checkbox sends the task back to the Tasks tab.
- *
- * Order in this file: 1. CompletedScreen  2. TaskCard  3. EmptyState
- */
 import React from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -18,10 +5,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Checkbox, confirmDelete, PriorityBadge, sortByDeadline, useApp } from '@/tasks/tasks';
 import { CheckEmptyIcon, TrashIcon } from '@/tasks/icon';
 import { styles } from './completed.styles';
-
-/* ======================================================================
-   1. COMPLETED SCREEN (header, Delete all, list)
-   ====================================================================== */
 
 export function CompletedScreen() {
   const { tasks, deleteTask, clearCompletedTasks } = useApp();
@@ -74,10 +57,6 @@ export function CompletedScreen() {
   );
 }
 
-/* ======================================================================
-   2. TASK CARD (one completed row)
-   ====================================================================== */
-
 function TaskCard({ task, onDelete }) {
   const router = useRouter();
   const { toggleTaskDone } = useApp();
@@ -108,10 +87,6 @@ function TaskCard({ task, onDelete }) {
     </Pressable>
   );
 }
-
-/* ======================================================================
-   3. EMPTY STATE
-   ====================================================================== */
 
 function EmptyState({ title, body }) {
   return (

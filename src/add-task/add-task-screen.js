@@ -1,19 +1,3 @@
-/**
- * ADD TASK FOLDER — ALL THE CODE IN ONE FILE
- * -------------------------------------------
- * src/add-task/add-task-screen.js  - this file (code)
- * src/add-task/add-task.styles.js  - the styles (external CSS)
- *
- * Order in this file: 1. AddTaskScreen  2. AddTaskForm (the fields)  3. Rules (deadline check)
- * (The Edit Task modal is in edit-task-screen.js.)
- *
- * ADD TASK rules
- * - Required: Title, Subject, Priority, Deadline. Description is optional.
- * - Priority: no button is highlighted until you tap one (High / Medium / Low).
- * - Deadline: must be a real date written as YYYY-MM-DD (e.g. 2026-10-5 or 2026-10-05).
- *   Something like 111234 shows a red error right away and the task cannot be added.
- * - After adding, the form is cleared (by changing its `key`) and you go back to the Tasks tab.
- */
 import React, { useState } from 'react';
 import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -22,10 +6,6 @@ import { useApp } from '@/tasks/tasks';
 import { colors, PRIORITIES } from '@/tasks/tasks.styles';
 import { DeadlineField } from './deadline-field';
 import { styles } from './add-task.styles';
-
-/* ======================================================================
-   1. ADD TASK SCREEN (route "/add-task")
-   ====================================================================== */
 
 export function AddTaskScreen() {
   const router = useRouter();
@@ -37,16 +17,12 @@ export function AddTaskScreen() {
       key={formKey}
       onSubmit={values => {
         addTask({ ...values, done: false });
-        setFormKey(k => k + 1); // clears the form for next time
+        setFormKey(k => k + 1);
         router.navigate('/');
       }}
     />
   );
 }
-
-/* ======================================================================
-   2. ADD TASK FORM (the fields)
-   ====================================================================== */
 
 function AddTaskForm({ onSubmit }) {
   const [title, setTitle] = useState('');
@@ -118,7 +94,7 @@ function AddTaskForm({ onSubmit }) {
                     key={p}
                     onPress={() => setPriority(p)}
                     accessibilityRole="button"
-                    accessibilityState={{ selected: active }}
+                    accessibilityState={{ selected: !!active }}
                     style={[styles.priorityBtn, active && styles.priorityBtnActive]}
                   >
                     <Text style={[styles.priorityText, active && styles.priorityTextActive]}>{p}</Text>
@@ -165,21 +141,8 @@ function AddTaskForm({ onSubmit }) {
   );
 }
 
-/* ======================================================================
-   3. RULES (deadline check, when the button is enabled)
-   ====================================================================== */
-
-/* ----------------------------- Deadline check ------------------------------ */
-
 const pad = n => String(n).padStart(2, '0');
 
-/**
- * Checks a deadline typed by the user.
- * Returns { ok, message, value }:
- *   ok      - true when it is a real date in YYYY-MM-DD form
- *   message - what to show under the field when it is not OK
- *   value   - the clean version to save (2026-10-5 -> 2026-10-05)
- */
 function checkDeadline(text) {
   const v = text.trim();
   if (!v) return { ok: false, message: '', value: '' };
@@ -202,7 +165,6 @@ function checkDeadline(text) {
   return { ok: true, message: '', value: `${year}-${pad(month)}-${pad(day)}` };
 }
 
-/** The task can be added when Title, Subject, Priority and a real Deadline are filled in. Description is optional. */
 function canSaveTask({ title, subject, priority, deadline }) {
   return (
     title.trim().length > 0 &&

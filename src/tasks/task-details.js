@@ -5,10 +5,6 @@ import { BackIcon } from './icon';
 import { PriorityBadge, Screen, confirmDelete, useApp, useSafeBack } from './tasks';
 import { detailsStyles } from './tasks.styles';
 
-/* ======================================================================
-   9. TASK DETAILS SCREEN  (route "/task/<id>")
-   ====================================================================== */
-
 export function TaskDetailsScreen() {
   const { taskId } = useLocalSearchParams();
   const router = useRouter();

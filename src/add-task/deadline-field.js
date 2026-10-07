@@ -1,13 +1,3 @@
-/**
- * CALENDAR — deadline field with a calendar picker
- * --------------------------------------------------
- * <DeadlineField> = the label + a "YYYY-MM-DD" text box + a calendar icon button.
- * Tap the icon to open a month calendar, tap a day and the date is filled in
- * (you can still type the date by hand). Used by add-task-screen.js and edit-task-screen.js.
- * Styles: add-task.styles.js (calendarStyles, formStyles). Icons: tasks/icon.js.
- *
- * Order in this file: 1. DeadlineField (text box + icon)  2. MonthCalendar (opens on tap)  3. date helper
- */
 import React, { useState } from 'react';
 import { Keyboard, Pressable, Text, TextInput, View } from 'react-native';
 import { BackIcon, CalendarIcon, ChevronRightIcon } from '@/tasks/icon';
@@ -23,14 +13,6 @@ const WEEKDAYS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 const pad = n => String(n).padStart(2, '0');
 const toText = (year, month, day) => `${year}-${pad(month + 1)}-${pad(day)}`;
 
-/* ======================================================================
-   1. DEADLINE FIELD (what the forms use)
-   ====================================================================== */
-
-/**
- * Props: label ("Deadline *"), value (the text, "YYYY-MM-DD"), onChange(text),
- *        error (red message under the field, '' for none).
- */
 export function DeadlineField({ label = 'Deadline', value, onChange, error = '' }) {
   const [open, setOpen] = useState(false);
 
@@ -60,7 +42,7 @@ export function DeadlineField({ label = 'Deadline', value, onChange, error = '' 
           style={[calendarStyles.iconBtn, open && calendarStyles.iconBtnActive]}
           accessibilityRole="button"
           accessibilityLabel="Open calendar"
-          accessibilityState={{ expanded: open }}
+          accessibilityState={{ expanded: !!open }}
         >
           <CalendarIcon color={open ? colors.primary : colors.muted} />
         </Pressable>
@@ -80,11 +62,6 @@ export function DeadlineField({ label = 'Deadline', value, onChange, error = '' 
   );
 }
 
-/* ======================================================================
-   2. MONTH CALENDAR (opens when the calendar icon is tapped)
-   ====================================================================== */
-
-/** The month grid. Mounted only while open, so it always starts on the selected (or current) month. */
 function MonthCalendar({ value, onPick }) {
   const selected = parseDate(value);
   const now = new Date();
@@ -154,7 +131,7 @@ function MonthCalendar({ value, onPick }) {
               onPress={() => onPick(toText(view.year, view.month, day))}
               accessibilityRole="button"
               accessibilityLabel={`${MONTH_NAMES[view.month]} ${day}, ${view.year}`}
-              accessibilityState={{ selected: isSelected }}
+              accessibilityState={{ selected: !!isSelected }}
             >
               <View
                 style={[
@@ -192,11 +169,6 @@ function MonthCalendar({ value, onPick }) {
   );
 }
 
-/* ======================================================================
-   3. DATE HELPER
-   ====================================================================== */
-
-/** "2026-10-5" -> { year: 2026, month: 9, day: 5 } (month is 0-11). null when not a real date. */
 function parseDate(text) {
   const m = (text ?? '').trim().match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
   if (!m) return null;
