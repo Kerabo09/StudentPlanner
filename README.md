@@ -1,6 +1,14 @@
-# StudyTracker
+# StudentPlannerV2
 
-A React Native (Expo) app for tracking subjects, assignments and weekly progress.
+A React Native (Expo) study planner. Tasks have a subject, priority, deadline, notes, a steps checklist and a focus timer.
+
+## What is new in V2
+
+- Tasks tab: Overdue / Due today / Done this week tiles, overall progress bar, filter chips, sort by deadline or priority
+- Smart deadline badges ("Overdue by 2 days", "Due today", "Due in 3 days")
+- Task details: Mark as done, Steps checklist, Focus timer that logs study minutes to the task
+- Add / Edit Task: one-tap subject chips and quick deadline buttons
+- Completed tab: weekly summary, completion date and study time
 
 ## Get started
 
