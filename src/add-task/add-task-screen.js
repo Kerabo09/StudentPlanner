@@ -30,7 +30,16 @@ function AddTaskForm({ onSubmit }) {
   const [priority, setPriority] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [notes, setNotes] = useState('');
-
+const handleSave = () => {
+    if (!canSave) return;
+    onSubmit({
+      title: title.trim(),
+      subject: subject.trim(),
+      priority,
+      dueDate: deadline.value,
+      notes: notes.trim(),
+    });
+  };
   const deadline = checkDeadline(dueDate);
   const showDeadlineError = dueDate.trim().length > 0 && !deadline.ok;
 
