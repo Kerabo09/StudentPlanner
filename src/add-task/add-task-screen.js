@@ -36,16 +36,7 @@ function AddTaskForm({ onSubmit }) {
 
   const canSave = canSaveTask({ title, subject, priority, deadline });
 
-  const handleSave = () => {
-    if (!canSave) return;
-    onSubmit({
-      title: title.trim(),
-      subject: subject.trim(),
-      priority,
-      dueDate: deadline.value,
-      notes: notes.trim(),
-    });
-  };
+  
 
   return (
     <SafeAreaView edges={['top']} style={styles.screen}>
