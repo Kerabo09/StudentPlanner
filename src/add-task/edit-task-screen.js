@@ -61,7 +61,85 @@ function TaskForm({ heading, initial, onSubmit, onCancel }) {
       notes: notes.trim(),
     });
   };
+ return (
+    <Screen edges={['top', 'bottom']}>
+      <FormHeader title={heading} onCancel={onCancel} onSave={handleSave} saveDisabled={!canSave} />
 
+      <KeyboardAvoidingView style={formStyles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          style={formStyles.flex}
+          contentContainerStyle={formStyles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View>
+            <Text style={formStyles.label}>Title *</Text>
+            <TextInput
+              style={formStyles.input}
+              placeholder="Task title"
+              placeholderTextColor={colors.faint}
+              value={title}
+              onChangeText={setTitle}
+              returnKeyType="next"
+            />
+          </View>
+
+          <View>
+            <Text style={formStyles.label}>Subject</Text>
+            <TextInput
+              style={formStyles.input}
+              placeholder="e.g. Mobile Programming"
+              placeholderTextColor={colors.faint}
+              value={subject}
+              onChangeText={setSubject}
+              returnKeyType="next"
+            />
+          </View>
+
+          <View>
+            <Text style={formStyles.label}>Priority</Text>
+            <View style={formStyles.priorityRow}>
+              {PRIORITIES.map(p => {
+                const active = priority === p;
+                return (
+                  <Pressable
+                    key={p}
+                    onPress={() => setPriority(p)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: !!active }}
+                    style={[formStyles.priorityBtn, active && formStyles.priorityBtnActive]}
+                  >
+                    <Text style={[formStyles.priorityText, active && formStyles.priorityTextActive]}>{p}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <DeadlineField
+            label="Deadline"
+            value={dueDate}
+            onChange={setDueDate}
+            error={showDeadlineError ? deadline.message : ''}
+          />
+
+          <View>
+            <Text style={formStyles.label}>Description (optional)</Text>
+            <TextInput
+              style={[formStyles.input, formStyles.textArea]}
+              placeholder="Add notes or instructions..."
+              placeholderTextColor={colors.faint}
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Screen>
+  );
+}
  
 
 function FormHeader({ title, onCancel, onSave, saveDisabled }) {
