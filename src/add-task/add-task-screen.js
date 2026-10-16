@@ -45,7 +45,99 @@ const handleSave = () => {
 
   const canSave = canSaveTask({ title, subject, priority, deadline });
 
-  
+    return (
+    <SafeAreaView edges={['top']} style={styles.screen}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Add Task</Text>
+      </View>
+
+      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <ScrollView
+          style={styles.flex}
+          contentContainerStyle={styles.content}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View>
+            <Text style={styles.label}>Title *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Task title"
+              placeholderTextColor={colors.faint}
+              value={title}
+              onChangeText={setTitle}
+              returnKeyType="next"
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Subject *</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="e.g. Mobile Programming"
+              placeholderTextColor={colors.faint}
+              value={subject}
+              onChangeText={setSubject}
+              returnKeyType="next"
+            />
+          </View>
+
+          <View>
+            <Text style={styles.label}>Priority *</Text>
+            <View style={styles.priorityRow}>
+              {PRIORITIES.map(p => {
+                const active = priority === p;
+                return (
+                  <Pressable
+                    key={p}
+                    onPress={() => setPriority(p)}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: !!active }}
+                    style={[styles.priorityBtn, active && styles.priorityBtnActive]}
+                  >
+                    <Text style={[styles.priorityText, active && styles.priorityTextActive]}>{p}</Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <DeadlineField
+            label="Deadline *"
+            value={dueDate}
+            onChange={setDueDate}
+            error={showDeadlineError ? deadline.message : ''}
+          />
+
+          <View>
+            <Text style={styles.label}>Description (optional)</Text>
+            <TextInput
+              style={[styles.input, styles.textArea]}
+              placeholder="Add notes or instructions..."
+              placeholderTextColor={colors.faint}
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={3}
+            />
+          </View>
+
+          {!canSave && <Text style={styles.hint}>Fill in the required fields (*) to add the task.</Text>}
+
+          <Pressable
+            style={[styles.submitBtn, !canSave && styles.submitBtnDisabled]}
+            onPress={handleSave}
+            disabled={!canSave}
+            accessibilityRole="button"
+            accessibilityState={{ disabled: !canSave }}
+          >
+            <Text style={styles.submitText}>Add Task</Text>
+          </Pressable>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
 
 
 
